@@ -41,6 +41,10 @@ const getUserByUsername = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
+    const validateUser = await UserService.getByEmail(req.body.email)
+    if(validateUser) {
+      return responses.error(res, "Email already exist", 409)
+    }
     const user = await UserService.create(req.body);
     return responses.success(res, user, 'User created');
   } catch (error) {

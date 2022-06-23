@@ -2,7 +2,7 @@
 
 const { User } = require('../models');
 const { hashPassword } = require('../utils/password');
-
+const { generateFromEmail } = require('unique-username-generator');
 
 class UserService {
   static async getAll() {
@@ -49,10 +49,11 @@ class UserService {
   static async create(user) {
     try {
       const username = await this.#setUsername(user.email);
+      const password = await hashPassword(user.password);
       const result = await User.create({
         ...user,
-        password: await hashPassword(user.password),
-        username
+        password,
+        username,
       });
       result.set('password', undefined, { strict: false });
       return result;
@@ -108,11 +109,11 @@ class UserService {
 
   static async #setUsername(email) {
     try {
-      const users = await User.find();
-      const usernames = users.map(user => user.username);
+      const users = await UserService.getAll();
+      const usernames = users.map((user) => user.username);
       let username = email.split('@')[0];
       while (usernames.includes(username)) {
-        username += Math.floor(Math.random() * 100);
+        username = generateFromEmail(email, 3);
       }
       return username;
     } catch (error) {
