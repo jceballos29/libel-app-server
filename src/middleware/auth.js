@@ -3,7 +3,7 @@
 const { verify } = require('../utils/token');
 const { error } = require('../utils/responses');
 
-const validate = (req, res, next) => {
+const checkAuth = (req, res, next) => {
   try {
     const token = req.cookies.libelAcademyToken;
     if (!token) {
@@ -20,4 +20,32 @@ const validate = (req, res, next) => {
   }
 };
 
-module.exports = { validate };
+
+const checkRole = (roles) => (req, res, next) => {
+  try {
+    const { role } = req.auth;
+    if (!roles.includes(role)) {
+      return error(res, 'Unauthorized', 401);
+    }
+    next();
+  } catch (error) {
+    return error(res, error, 500);
+  }
+}
+
+
+const checkOwner = (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { id: userId, role } = req.auth;
+    if (role === 'admin' || id === userId) {
+      next();
+    } else {
+      return error(res, 'Unauthorized', 401);
+    }
+  } catch (error) {
+    return error(res, error, 500);
+  }
+}
+
+module.exports = { checkAuth, checkRole, checkOwner };

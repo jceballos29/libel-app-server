@@ -17,9 +17,11 @@ const config = {
   secretSession: process.env.SECRET_SESSION || 'secret',
   googleProjectId: process.env.GOOGLE_PROJECT_ID,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
-  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  googleClientSecret: process.env.GOOGLE_SECRET_CLIENT,
   googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL,
   googleBucketName: process.env.GOOGLE_BUCKET_NAME,
+  facebookAppId: process.env.FACEBOOK_APP_ID,
+  facebookAppSecret: process.env.FACEBOOK_APP_SECRET,
 }
 
 

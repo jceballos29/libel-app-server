@@ -86,7 +86,7 @@ class UserService {
   static async setPassword(id, password) {
     try {
       const result = await User.findByIdAndUpdate(id, {
-        password: hashPassword(password),
+        password: await hashPassword(password),
       });
       return result;
     } catch (error) {
@@ -98,7 +98,8 @@ class UserService {
     try {
       const result = await User.findById(id);
       if (await result.comparePassword(oldPassword)) {
-        await result.setPassword(newPassword);
+        result.password = await hashPassword(newPassword);
+        await result.save();
         return result;
       }
       throw new Error('Old password is incorrect');

@@ -1,7 +1,8 @@
 /** @format */
 
-const { Course, Unit, Lesson } = require('../models');
+const { Course, Unit, Lesson, Category } = require('../models');
 const slugify = require('slugify');
+
 
 class CourseService {
   static async getAll() {
@@ -80,6 +81,10 @@ class CourseService {
         trim: true,
       });
       const result = await Course.create(course);
+      console.log(result.category.toString());
+      const category = await Category.findById(result.category.toString());
+      category.courses.push(result._id);
+      await category.save();
       return result;
     } catch (error) {
       throw error;
@@ -122,7 +127,6 @@ class CourseService {
       await unit.remove();
       return true;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
@@ -144,7 +148,6 @@ class CourseService {
       await course.save();
       return lesson;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
@@ -189,6 +192,9 @@ class CourseService {
         })
         await unit.remove();
       });
+      const category = await Category.findById(course.category);
+      category.courses = category.courses.filter( (c) => c.toString() !== id);
+      await category.save();
       await course.remove();
       return true;
     } catch (error) {

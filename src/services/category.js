@@ -17,6 +17,7 @@ class CategoryService {
 
   static async getById(id) {
     try {
+      console.log(id);
       const result = await Category.findById(id);
       return result;
     } catch (error) {

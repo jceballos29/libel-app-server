@@ -4,6 +4,7 @@ const { UserService } = require('../services');
 const { comparePassword } = require('../utils/password');
 const { generate } = require('../utils/token');
 const responses = require('../utils/responses');
+const uuid = require('uuid');
 
 const login = async (req, res) => {
   try {
@@ -19,6 +20,31 @@ const login = async (req, res) => {
     const token = generate(user);
     user.set('password', undefined, { strict: false });
     return responses.login(res, token, user);
+  } catch (error) {
+    return responses.error(res, error, 500);
+  }
+};
+
+const providerLogin = async (req, res) => {
+  try {
+    const data = req.user.profile;
+    const user = await UserService.getByEmail(data.emails[0].value);
+    if (user) {
+      const token = generate(user);
+      user.set('password', undefined, { strict: false });
+      return responses.login(res, token, user);
+    } else {
+      const newUser = await UserService.create({
+        avatar: data.photos[0].value,
+        email: data.emails[0].value,
+        name: data.displayName,
+        password: uuid.v4(),
+        provider: data.provider,
+        providerId: data.id,
+      });
+      const token = generate(newUser);
+      return responses.login(res, token, newUser);
+    }
   } catch (error) {
     return responses.error(res, error, 500);
   }
@@ -62,4 +88,4 @@ const verify = async (req, res) => {
   }
 };
 
-module.exports = { login, register, logout, verify };
+module.exports = { login, providerLogin, register, logout, verify };

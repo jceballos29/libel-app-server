@@ -9,6 +9,7 @@ const morgan = require('morgan');
 
 const { port, secretSession } = require('./config');
 const {connect} = require('./config/database');
+require('./middleware/passport');
 
 const app = express();
 connect();

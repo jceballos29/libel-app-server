@@ -44,6 +44,7 @@ const create = async (req, res) => {
     const course = await CourseService.create(req.body);
     return responses.success(res, course, 'Course created');
   } catch (error) {
+    console.log(error);
     return responses.error(res, error, 500);
   }
 };
