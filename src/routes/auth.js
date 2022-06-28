@@ -10,17 +10,20 @@ const router = Router();
 
 router.post('/login', AuthController.login);
 router.post('/register', AuthController.register);
-router.get('/logout', checkAuth, AuthController.logout);
+router.post('/logout', checkAuth, AuthController.logout);
 router.get('/verify', checkAuth, AuthController.verify);
 
-router.get('/delete', (req, res) => {
-  res.send('delete');
-})
 
 router.get('/google',passport.authenticate('google', {scope: ['email', 'profile'],}));
-router.get('/google/callback',passport.authenticate('google', { session: false }),AuthController.providerLogin);
+router.get('/google/callback',passport.authenticate('google', { session: false }), AuthController.providerLogin);
 
 router.get("/facebook",passport.authenticate("facebook",{scope:["email"]}))
 router.get("/facebook/callback",passport.authenticate("facebook",{session:false}), AuthController.providerLogin);
+
+router.post('/data', (req, res) => {
+  const { from } = req.body;
+  req.session.from = from;
+  res.send('OK')
+})
 
 module.exports = router;

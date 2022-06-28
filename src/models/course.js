@@ -12,13 +12,13 @@ const courseSchema = new mongoose.Schema(
     duration: {
       hours: { type: Number, required: true },
       minutes: { type: Number, required: true },
+      seconds: { type: Number, required: true }
     },
     level: {
       type: String,
-      enum: ['Beginner', 'Intermediate', 'Advanced'],
+      enum: ['Principiante', 'Intermedio', 'Avanzado'],
       required: true,
     },
-    tags: [{ type: String }],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',

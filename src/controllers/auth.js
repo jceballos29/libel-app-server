@@ -27,12 +27,13 @@ const login = async (req, res) => {
 
 const providerLogin = async (req, res) => {
   try {
+    const from = req.session.from || '/';
     const data = req.user.profile;
     const user = await UserService.getByEmail(data.emails[0].value);
     if (user) {
       const token = generate(user);
       user.set('password', undefined, { strict: false });
-      return responses.login(res, token, user);
+      return responses.loginProvider(res, token, from);
     } else {
       const newUser = await UserService.create({
         avatar: data.photos[0].value,
@@ -43,7 +44,7 @@ const providerLogin = async (req, res) => {
         providerId: data.id,
       });
       const token = generate(newUser);
-      return responses.login(res, token, newUser);
+      return responses.loginProvider(res, token, from );
     }
   } catch (error) {
     return responses.error(res, error, 500);

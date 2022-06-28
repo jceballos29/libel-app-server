@@ -8,6 +8,12 @@ const lessonSchema = new mongoose.Schema(
   {
     _unit: { type: mongoose.Schema.Types.ObjectId, ref: 'Unit' },
     title: { type: String, required: true },
+    description: { type: String, required: true },
+    duration: { 
+      hours: { type: Number, required: true },
+      minutes: { type: Number, required: true },
+      seconds: { type: Number, required: true }
+     },
     number: { type: Number, required: true },
     video: { type: String, required: true },
   },

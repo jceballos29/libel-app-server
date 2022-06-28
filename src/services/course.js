@@ -3,7 +3,6 @@
 const { Course, Unit, Lesson, Category } = require('../models');
 const slugify = require('slugify');
 
-
 class CourseService {
   static async getAll() {
     try {
@@ -12,6 +11,11 @@ class CourseService {
           path: 'category',
           model: 'Category',
           select: 'name',
+        })
+        .populate({
+          path: 'teacher',
+          model: 'User',
+          select: 'name avatar',
         })
         .populate({
           path: 'curriculum.units',
@@ -39,6 +43,11 @@ class CourseService {
           select: 'name',
         })
         .populate({
+          path: 'teacher',
+          model: 'User',
+          select: 'name avatar',
+        })
+        .populate({
           path: 'curriculum.units',
           model: 'Unit',
           populate: {
@@ -59,6 +68,11 @@ class CourseService {
           path: 'category',
           model: 'Category',
           select: 'name',
+        })
+        .populate({
+          path: 'teacher',
+          model: 'User',
+          select: 'name avatar',
         })
         .populate({
           path: 'curriculum.units',
@@ -82,10 +96,30 @@ class CourseService {
       });
       const result = await Course.create(course);
       console.log(result.category.toString());
-      const category = await Category.findById(result.category.toString());
+      const category = await Category.findById(
+        result.category.toString()
+      );
       category.courses.push(result._id);
       await category.save();
-      return result;
+      const newCourse = await Course.findById(result._id).populate({
+        path: 'category',
+        model: 'Category',
+        select: 'name',
+      })
+      .populate({
+        path: 'teacher',
+        model: 'User',
+        select: 'name avatar',
+      })
+      .populate({
+        path: 'curriculum.units',
+        model: 'Unit',
+        populate: {
+          path: 'lessons',
+          model: 'Lesson',
+        },
+      });
+      return newCourse;
     } catch (error) {
       throw error;
     }
@@ -172,8 +206,31 @@ class CourseService {
 
   static async update(id, course) {
     try {
+      if (course.title) {
+        course.slug = slugify(course.title, {
+          lower: true,
+          trim: true,
+        });
+      }
       const result = await Course.findByIdAndUpdate(id, course, {
         new: true,
+      }).populate({
+        path: 'category',
+        model: 'Category',
+        select: 'name',
+      })
+      .populate({
+        path: 'teacher',
+        model: 'User',
+        select: 'name avatar',
+      })
+      .populate({
+        path: 'curriculum.units',
+        model: 'Unit',
+        populate: {
+          path: 'lessons',
+          model: 'Lesson',
+        },
       });
       return result;
     } catch (error) {
@@ -189,14 +246,16 @@ class CourseService {
         const unit = await Unit.findById(u._id);
         unit.lessons.forEach(async (l) => {
           await Lesson.findByIdAndRemove(l._id);
-        })
+        });
         await unit.remove();
       });
       const category = await Category.findById(course.category);
-      category.courses = category.courses.filter( (c) => c.toString() !== id);
+      category.courses = category.courses.filter(
+        (c) => c.toString() !== id
+      );
       await category.save();
       await course.remove();
-      return true;
+      return course;
     } catch (error) {
       throw error;
     }

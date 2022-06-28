@@ -31,6 +31,18 @@ const login = async (res, token, user) => {
     })
 }
 
+const loginProvider = async (res, token, from ) => {
+  res
+    .status(200)
+    .cookie('libelAcademyToken', token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      sameSite: production ? 'none' : 'strict',
+      secure: production,
+    })
+    .redirect('http://localhost:3000' + from);
+}
+
 
 const logout = async (res) => {
   res
@@ -43,4 +55,4 @@ const logout = async (res) => {
 }
 
 
-module.exports = { error, success, login, logout };
+module.exports = { error, success, login, loginProvider, logout };
